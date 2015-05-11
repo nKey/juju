@@ -12,6 +12,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"strconv"
 
 	corecharm "github.com/juju/charm"
 	"github.com/juju/charm/hooks"
@@ -718,6 +719,23 @@ func (u *Uniter) addRelation(rel *uniter.Relation, dir *relation.StateDir) error
 			return nil
 		}
 	}
+}
+
+func (u *Uniter) rejoinRelation() error{
+	for _, r := range u.relationers {
+		if r.ru.Endpoint().Role != "provider"{
+			continue
+		}
+		settings, err := r.Context().Settings()
+		if err != nil{
+			return err
+		}
+		settings.Set("server_started_time", strconv.FormatInt(time.Now().Local().Unix(), 10))
+		if err := r.Context().WriteSettings(); err != nil{
+			return err
+		}
+	}
+	return nil
 }
 
 // fixDeployer replaces the uniter's git-based charm deployer with a manifest-

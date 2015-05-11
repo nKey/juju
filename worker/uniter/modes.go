@@ -131,6 +131,9 @@ func ModeConfigChanged(u *Uniter) (next Mode, err error) {
 	} else if err != nil {
 		return nil, err
 	}
+	if err := u.rejoinRelation(); err != nil{
+		return nil, err
+	}
 	return ModeContinue, nil
 }
 
